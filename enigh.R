@@ -1,10 +1,16 @@
 
-## ETL ENIGH ##
-## Alvaro Martinez Barron ##
+#####################################################################
+#                         ETL ENIGH                                 #
+#                                                                   #
+#####################################################################
+
 
 ######################## setting directory ##########################
+
 old_wd <- dirname(rstudioapi::getActiveDocumentContext()$path)
-setwd(paste(gsub("\\/code*","",old_wd), "databases", sep = "/"))
+
+setwd("C:/Users/80251882/Documents/data_inegi/databases")
+
 #####################################################################
 
 
@@ -51,7 +57,7 @@ close(pb)
 
 ## changing data frame name columns to lower case ##
 
-df_list <- Filter(function(x) is(x, "data.frame"), mget(ls()))
+df_list <- mget(ls()[sapply(ls(), function(x) is.data.frame(get(x)))])
 
 
 for(i in 1:length(df_list)){
@@ -121,6 +127,7 @@ for (i in 1:length(pop_list)) {
   
 }
 
+
 close(pb)
 
 ## unlist df's into global environment ##
@@ -165,8 +172,9 @@ fun_ed_1984 <- function(x){
 
 
 
-POBLA84.dbf$ed_formal <- as.factor(do.call(rbind, lapply(as.factor(POBLA84.dbf$ed_formal),
-                                      fun_ed_1984)))
+POBLA84.dbf$ed_formal <- as.factor(do.call(rbind, lapply(
+                                                    as.factor(POBLA84.dbf$ed_formal),
+                                                    fun_ed_1984)))
 
 
 ## excluding 84 as it was already decoded for education
@@ -658,7 +666,11 @@ conce_list <- list(CONCE84.dbf= CONCE84.dbf,
                    CONCE05.dbf= CONCE05.dbf, 
                    CONCE06.dbf= CONCE06.dbf, 
                    CONCE08.dbf= CONCE08.dbf,
-                   CONCE10.dbf= CONCE10.dbf)
+                   CONCE10.dbf= CONCE10.dbf,
+                   CONCE12.dbf = CONCE12.dbf,
+                   CONCE14.dbf = CONCE14.dbf,
+                   CONCE16.dbf = CONCE16.dbf,
+                   CONCE18.dbf = CONCE18.dbf)
 
 
 conce_list <- lapply(conce_list, function(decil) {
@@ -670,15 +682,29 @@ conce_list <- lapply(conce_list, function(decil) {
 
 ## unlisting list to dfs ##
 
-list2env('names<-'(conce_list, ls(pattern = "CONCE\\d\\d\\.dbf")), envir = .GlobalEnv)
+for (i in names(conce_list)) {
+  assign(i, conce_list[[i]], .GlobalEnv)
+}
 
 
 ## microdata set ##
 
-global_dataset <- rbind(CONCE84.dbf, CONCE89.dbf, CONCE92.dbf, CONCE94.dbf,
-                        CONCE96.dbf, CONCE98.dbf, CONCE00.dbf, CONCE02.dbf,
-                        CONCE04.dbf, CONCE05.dbf, CONCE06.dbf, CONCE08.dbf,
-                        CONCE10.dbf, CONCE12.dbf, CONCE14.dbf, CONCE16.dbf,
+global_dataset <- rbind(CONCE84.dbf, 
+                        CONCE89.dbf, 
+                        CONCE92.dbf, 
+                        CONCE94.dbf,
+                        CONCE96.dbf, 
+                        CONCE98.dbf, 
+                        CONCE00.dbf, 
+                        CONCE02.dbf,
+                        CONCE04.dbf, 
+                        CONCE05.dbf, 
+                        CONCE06.dbf, 
+                        CONCE08.dbf,
+                        CONCE10.dbf,
+                        CONCE12.dbf, 
+                        CONCE14.dbf, 
+                        CONCE16.dbf,
                         CONCE18.dbf)
 
 
@@ -687,7 +713,7 @@ global_dataset <- rbind(CONCE84.dbf, CONCE89.dbf, CONCE92.dbf, CONCE94.dbf,
 #Request token from : 
 #https://www.banxico.org.mx/SieAPIRest/service/v1/token
 
-setToken("a2e80d05fd77c8fda51dddddfc462157131fd9188bcd07faf3a994a3011385d9")
+setToken("12920dea59240ce4a70683757b5f5de73a97ab2912adfa6e21edb984ed27e6cc")
 
 ## Time Series Description ##
 #SP1 : National Price Index (Base = 1st Quarter 2018)
@@ -700,7 +726,7 @@ series <- getSeriesData(idSeries, '1984-01-01','2018-07-12')
 
 ## unlisting list to dfs ##
 list2env(series, envir = .GlobalEnv)
-
+  
 SP1 <- data.frame(SP1)
 SR1 <- data.frame(SR1)
 SR10 <- data.frame(SR10)
@@ -712,25 +738,34 @@ SR16643 <- data.frame(SR16643)
 
 ## Building Consumer Price Index Time Serie
 
-## Index to june 2013:
-# 1. National Price Index / July 2018
-#  
-             index <- SP1[(
-                SP1$date == "2018-07-01"), 2]
-             
-             SP1$value <- (SP1$value/index)*100
-             
-             index_1984 <- SP1[(SP1$date == "1984-07-01"), 2]
+#####################################################################################
+#                           Index to june 2013                                      #
+#                                                                                   # 
+#####################################################################################
+
+## 1. National Price Index / July 2018
+#             
+ 
+#              SP1$value <- log(SP1$value, base=10)
+# 
+#              
+# SP1$value <- lag(SP1$value, n=1)
+#              index <- SP1[(
+#                 SP1$date == "2018-07-01"), 2]
+#              
+#              SP1$value <- (SP1$value/index)*100
+#              
+#              index_1984 <- SP1[(SP1$date == "1984-07-01"), 2]
   
   #2. Index to june 2013 (base june 2013 =100)
               # June 2013 for research purposes
               # base from 100 to 1 as we will be using numeric values for gdp and not 
               # growth rates.
-             
-             index_june_2013 <- SP1[(
-                                  SP1$date == "2013-06-01"
-                                            ), 2]
-             SP1$value <- (SP1$value / index_june_2013)*100
+             # 
+             # index_june_2013 <- SP1[(
+             #                      SP1$date == "2013-06-01"
+             #                                ), 2]
+             # SP1$value <- (SP1$value / index_june_2013)*100
              
     #3. Extract values for relevant years
              price_index <- data.frame(
@@ -781,7 +816,7 @@ SR16643 <- data.frame(SR16643)
   ##1984: It is necessary to convert to current prices 
       ## From SR1: 
                gdp_1984<- data.frame(
-                                gdp = SR1[(SR1$date == "1984-07-01"), 2] / index_1984) 
+                                gdp = SR1[(SR1$date == "1984-07-01"), 2] / price_index[1,1]) 
                 
   # 1989-2004 
       ## Use SR10 as it comes: SR10[1989:2004,]
@@ -813,14 +848,902 @@ SR16643 <- data.frame(SR16643)
 ## join to global dataset ##
 global_dataset <- global_dataset %>%
                               left_join(dplyr :: 
-                                           select(aggregate_dataset, año, 
+                                           select(aggregate_dataset, 
+                                                  año, 
                                                   gdp, price_index),
                                                    by = "año")
 ## removing zeros ##
 global_dataset <- global_dataset[!(global_dataset$gascor== 0),]
 
+for (i in colnames(global_dataset)){
+  print(paste(i, " ", class(global_dataset[[i]])))
+  
+}
 
 
 
-### hola mundo###
+
+#####################################################################################
+#                                                                                   #
+#   Conviertiendo la microdata a logaritmo (series de tiempo basadas en hogares)    #
+#                                                                                   #
+#####################################################################################
+
+
+##########################################################
+#                                                        #
+# se calcula el gasto real per capita como el            #  
+#log((x= y/p)/(n))== log(x)-log(n)=log(y)-log(p)-log(n)  #
+#                                                        #
+##########################################################
+
+
+global_dataset[["price_index_rounded"]] <- round(global_dataset[["price_index"]] / 100, 5)
+
+
+global_dataset[["ln_gasto_real_per_capita"]] <- log(round(
+                                             ((
+                                               global_dataset[["gascor"]] / 
+                                               global_dataset[["price_index_rounded"]])/
+                                               (global_dataset[["tam_hog"]]))
+                                             ,2), 
+                                             base = 10)
+
+
+
+####################################################################################
+#                                                                                  #
+# Convirtiendo datos agregados en logaritmo (series de tiempo nacionales)          #
+#                                                                                  #  
+####################################################################################
+
+##########################################################
+#                                                        #
+# se calcula el pib real per capita como el              #  
+#log((x= y/p)/(n))== log(x)-log(n)=log(y)-log(p)-log(n)  #
+#                                                        #
+##########################################################
+
+
+############################### logaritmo de pib real ###############################
+
+global_dataset[["ln_pib_real"]] <- log(round((
+                                        global_dataset[["gdp"]]/
+                                        global_dataset[["price_index_rounded"]]), 2), 
+                                        base=10)
+
+real_gdp_time_series <- aggregate(ln_pib_real ~ año, global_dataset, mean)
+
+################################ logaritmo de poblacion #############################
+
+population_time_series <- aggregate(factor ~ año, global_dataset, sum)
+population_time_series[["ln_population"]] <- log(population_time_series[["factor"]], base= 10)
+
+
+################################# agregado macroeconomico ##########################
+
+real_gdp_time_series <- real_gdp_time_series %>%
+                                         left_join(dplyr::select(population_time_series,
+                                                                 año,
+                                                                 ln_population),
+                                                                 by= "año")
+
+real_gdp_time_series <- real_gdp_time_series %>% 
+                              dplyr::mutate(ln_pib_real_per_capita = 
+                                                              (ln_pib_real/
+                                                               ln_population)) %>%
+                              dplyr::select(-c(ln_pib_real, ln_population))
+                                      
+
+############################ construyendo series de tiempo finales #################
+
+decode_decil_fun <- function(x){
+     if(is.na(x)){
+       return(NA)
+     } else if(x == 1){
+       return("Decil 1")
+     } else if(x == 2){
+       return("Decil 2")
+     } else if(x == 3){
+       return("Decil 3")
+     } else if(x == 4){
+       return("Decil 4")
+     } else if(x == 5){
+       return("Decil 5")
+     } else if(x==6){
+       return("Decil 6")
+     } else if(x==7){
+       return("Decil 7")
+     } else if(x == 8){
+       return("Decil 8")
+     } else if(x == 9){
+       return("Decil 9")
+     } else if(x == 10){
+       return("Decil 10")
+     }
+}
+
+
+global_dataset[["decil"]] <- as.factor(do.call(
+                                       rbind, 
+                                       lapply(global_dataset[["decil"]], 
+                                              decode_decil_fun)))
+
+######################## final time-series data frame ##############################
+
+time_series_df <- aggregate(ln_gasto_real_per_capita ~ año + decil, global_dataset, FUN = mean)
+
+
+time_series_df <- time_series_df %>%
+                             left_join(dplyr::select(real_gdp_time_series,
+                                                     año,
+                                                     ln_pib_real_per_capita),
+                                        by = "año")
+
+
+time_series_df[["año"]]<- as.Date(paste("01", 
+                                        "01", 
+                                        time_series_df$año, sep="/"), 
+                                  format="%d/%m/%Y")
+  
+
+######################## reacomodando de acuerdo al decil ###########################
+
+decil_order <- c("Decil 1", "Decil 2", "Decil 3", 
+                 "Decil 4", "Decil 5", "Decil 6", 
+                 "Decil 7", "Decil 8", "Decil 9", "Decil 10")
+
+time_series_df <- time_series_df %>%
+                      dplyr::mutate(decil =  factor(decil, levels = decil_order)) %>%
+                      dplyr::arrange(decil)
+                                
+#####################################################################################
+#                                                                                   #
+#                   Graficando distintas series de tiempo                           #
+#                                                                                   #
+#####################################################################################
+
+ 
+#####################################################################################
+#     Graficando tendencia (ln) del gasto real por decil                            #
+#                                                                                   #
+#####################################################################################
+
+library(tidyverse)
+library(ggplot2)
+library(reshape2)
+library(scales)
+library(ggforce)
+library(ggthemes)
+library(ggplot2)
+library(ggExtra)
+
+
+df <- time_series_df %>% 
+            dplyr::select(-c(ln_pib_real_per_capita))
+
+#library(RColorBrewer)  
+
+ggplot(df,aes(x=año,
+              y=ln_gasto_real_per_capita,
+              colour=decil,
+              group=decil)) + 
+              geom_line() +
+              scale_x_date(date_breaks = "2 years",date_labels = "%Y")+
+              xlab("Año")+
+              ylab("Logaritmo Natural del Ingreso Real per Cápita")+
+             labs(title = "Tendencia del Poder Adquisitivo en México",
+             subtitle = "Por Decil : de 1989 a 2018",
+             caption = "Fuente: ENIGH")+
+             ggsave(path = "C:/Users/80251882/Documents/data_inegi/plots",
+                       filename = "tendencia_deciles.jpg", 
+                    width = 10,
+                    height = 6)
+
+
+#####################################################################################
+#     Graficando el crecimiento en el poder adquisitivo por decil                   #
+#                                                                                   #
+#####################################################################################
+
+df <- df %>% 
+          group_by(decil) %>% 
+              mutate(growth = ((ln_gasto_real_per_capita - lag(ln_gasto_real_per_capita))/
+                               lag(ln_gasto_real_per_capita))*100) %>%
+            tidyr::drop_na() %>%
+            dplyr::select(-c(ln_gasto_real_per_capita)) %>%
+  
+            ## retirando outliers ##
+            dplyr::ungroup() %>% 
+            dplyr::nest_by(decil) %>% 
+            dplyr::mutate(out_var1 =  list(boxplot.stats(data$growth)$out),
+                filtered_df = list(data %>% filter(growth %in% out_var1 %>% `!`))) %>% 
+            dplyr::select(decil,filtered_df) %>% 
+            tidyr::unnest(filtered_df) %>% 
+            dplyr::ungroup() 
+
+
+################################ defining ggplot object ################################
+
+# p <- ggplot(df,aes(x=año,
+#                    y=growth)) + 
+#   geom_line(col = "blue", size=7) +
+#   scale_x_date(date_breaks = "3 years",date_labels = "%Y") +
+#   facet_wrap_paginate(~decil, nrow = 1, ncol = 1, scales = "free") +
+#   xlab("Año")+
+#   ylab("Crecimiento en el Poder Adquisitivo por Decil") +
+#   labs(title = "Evolucion del Poder Adquisitivo en México",
+#        subtitle = "De 1989 a 2018",
+#        caption = "Fuente: ENIGH")
+# 
+# 
+# required_n_pages <- n_pages(p)
+# 
+# 
+# 
+# for(i in 1:required_n_pages){
+#   
+#    p <- ggplot(df,aes(x=año,
+#                      y=growth)) + 
+#     geom_line(col = "blue", size= 2) +
+#     scale_x_date(date_breaks = "1 year",date_labels = "%Y") +
+#     facet_wrap_paginate(~decil, nrow = 1, ncol = 1, scales = "free", page = i) +
+#     xlab("Año")+
+#     ylab("Crecimiento en el Poder Adquisitivo por Decil (%)") +
+#     labs(title = "Evolucion del Poder Adquisitivo en México",
+#          subtitle = "De 1989 a 2018",
+#          caption = "Fuente: ENIGH")
+#     print(p)
+#     ggsave(
+#       path = "C:/Users/80251882/Documents/data_inegi/plots",
+#       filename = paste0(
+#       "crecimiento_poder_adquisitivo_decil", i,".jpg"), 
+#       width = 10, 
+#       height = 6)
+# }
+
+#############################
+
+theme_set(theme_bw()) # from ggthemes
+
+
+
+ggplot(df, aes(decil, growth))+
+  geom_violin()+
+  xlab("Decil Poblacional")+
+  ylab("Función de Densidad de Probabilidad para el Crecimiento en Poder Adquisitivo")+
+  labs(title = "Gráfico de Violin para Crecimiento en Poder Adquisitivo",
+       subtitle = "Por Decil/ Función de Densidad de Probabilidad al 95% de Confianza",
+       caption = "Elaboración propia con datos de la ENIGH")+
+       ggsave(path = "C:/Users/80251882/Documents/data_inegi/plots",
+               filename="violin_plot_deciles.jpg", 
+               plot=last_plot())
+
+
+#####################################################################################
+#     Graficando el crecimiento en el poder adquisitivo por decil y                 #
+#     el crecimiento del pib per capita                                             #
+#####################################################################################
+
+
+growth_biseries_df <- # obteniendo las tasas de crecimiento para el gasto real y el pib 
+  
+                     time_series_df %>%
+                     dplyr::group_by(decil) %>% 
+                     dplyr::mutate(growth_gasto_real_per_capita = 
+                            ((ln_gasto_real_per_capita - lag(ln_gasto_real_per_capita))/
+                              lag(ln_gasto_real_per_capita))*100) %>%
+                     dplyr::mutate(growth_pib_real_per_capita = 
+                                     ((ln_pib_real_per_capita - lag(ln_pib_real_per_capita))/
+                                        lag(ln_pib_real_per_capita))*100) %>%
+                     tidyr::drop_na() %>%
+                     dplyr::select(-c(ln_gasto_real_per_capita, ln_pib_real_per_capita)) %>%
+                     `colnames<-`(c("año", 
+                                    "decil", 
+                                    "Crecimiento en el Poder Adquisitivo (%)", 
+                                    "Crecimiento en el PIB Real per Cápita (%)")) %>%
+  
+                     ## retirando outliers ##
+                      dplyr::ungroup() %>% 
+                      dplyr::nest_by(decil) %>% 
+                      dplyr::mutate(out_var1 =  list(boxplot.stats(data$`Crecimiento en el Poder Adquisitivo (%)`)$out),
+                                    out_var2 =  list(boxplot.stats(data$`Crecimiento en el PIB Real per Cápita (%)`)$out),
+                                   filtered_df = list(data %>% filter(`Crecimiento en el Poder Adquisitivo (%)` %in% out_var1 %>% `!`,
+                                                   `Crecimiento en el PIB Real per Cápita (%)` %in% out_var2 %>% `!`))) %>% 
+                     dplyr::select(decil,filtered_df) %>% 
+                     tidyr::unnest(filtered_df) %>% 
+                     dplyr::ungroup() %>%
+                    
+                     ## preparando datos para las graficar ##
+                     tidyr::gather(variable, 
+                                     value, 
+                                   `Crecimiento en el Poder Adquisitivo (%)`, 
+                                   `Crecimiento en el PIB Real per Cápita (%)`) 
+
+
+################################ defining ggplot object ################################
+# 
+# p <- ggplot(growth_biseries_df, aes(x = año, y = value)) + 
+#        geom_line(aes(color = variable), size = 1) +
+#        scale_x_date(date_breaks = "3 years",date_labels = "%Y") +
+#        facet_wrap_paginate(~decil, nrow = 1, ncol = 1, scales = "free") +
+#        scale_color_manual(values = c("blue", "green")) +
+#        theme_minimal()+
+#        xlab("Año")+
+#        ylab("Crecimiento (%)")+
+#        labs(title = "Comparación de la Evolucion de la Economia y del Poder Adquisitivo en México",
+#             subtitle = "Por Decil: De 1989 a 2018",
+#              caption = "Fuente: ENIGH y Banxico")
+# 
+# 
+# required_n_pages <- n_pages(p)
+# 
+# 
+# for(i in 1:required_n_pages){
+#   
+#   
+#   
+#   p <- ggplot(growth_biseries_df, aes(x = año, y = value)) + 
+#     geom_line(aes(color = variable), size = 1) +
+#     scale_x_date(date_breaks = "3 years",date_labels = "%Y") +
+#     facet_wrap_paginate(~decil, nrow = 1, ncol = 1, scales = "free", page=i) +
+#     scale_color_manual(values = c("blue", "green")) +
+#     theme_minimal()+
+#     xlab("Año")+
+#     ylab("Crecimiento (%)")+
+#     labs(title = "Comparación de la Evolucion de la Economia y del Poder Adquisitivo en México",
+#          subtitle = "Por Decil: De 1989 a 2018",
+#          caption = "Fuente: ENIGH y Banxico")
+#   
+#   print(p)
+#   ggsave(paste0("ppa_growth_decil", i,".png"), width = 15, 
+#          height = 4, dpi = 300, units = "in", device='png')
+# }
+
+
+
+
+#####################################################################################
+#     Graficando el crecimiento en el poder adquisitivo por decil y                 #
+#     el crecimiento del pib per capita  (incluyendo histograma y boxplot)          #
+#####################################################################################
+
+df1 <- growth_biseries_df %>% dplyr::filter(decil=="Decil 1")
+df2 <- growth_biseries_df %>% dplyr::filter(decil=="Decil 2")
+df3 <- growth_biseries_df %>% dplyr::filter(decil=="Decil 3")
+df4 <- growth_biseries_df %>% dplyr::filter(decil=="Decil 4")
+df5 <- growth_biseries_df %>% dplyr::filter(decil=="Decil 5")
+df6 <- growth_biseries_df %>% dplyr::filter(decil=="Decil 6")
+df7 <- growth_biseries_df %>% dplyr::filter(decil=="Decil 7")
+df8 <- growth_biseries_df %>% dplyr::filter(decil=="Decil 8")
+df9 <- growth_biseries_df %>% dplyr::filter(decil=="Decil 9")
+df10 <- growth_biseries_df %>% dplyr::filter(decil=="Decil 10")
+
+
+theme_set(theme_bw())  # pre-set the bw theme.
+
+#####################################################################
+g1 <- ggplot(tidyr::spread(df1, variable, value), 
+            aes(`Crecimiento en el PIB Real per Cápita (%)`,
+              `Crecimiento en el Poder Adquisitivo (%)`, 
+                )) +
+    geom_count(show.legend = F)+
+    geom_smooth(method="loess", se=F)+
+    geom_text(aes(label= lubridate::year(año)), 
+              hjust = 0.5,  vjust = -1)+
+    labs(title="Crecimiento del Poder Adquisitivo y de la Economía",
+         subtitle = "Decil 1",
+         caption = "Elaboración propia con datos de ENIGH y Banxico")
+
+
+ggsave(path="C:/Users/80251882/Documents/data_inegi/plots",
+       filename= "relationship_economy_ppa_decil1.jpg",
+       ggMarginal(g1, type = "histogram", fill="transparent"),
+                 width = 10,
+                 height = 6)
+
+########################################################################
+
+g2 <- ggplot(tidyr::spread(df2, variable, value), 
+             aes(`Crecimiento en el PIB Real per Cápita (%)`,
+                 `Crecimiento en el Poder Adquisitivo (%)`, 
+             )) +
+  geom_count(show.legend = F)+
+  geom_smooth(method="loess", se=F)+
+  geom_text(aes(label= lubridate::year(año)), 
+            hjust = 0.5,  vjust = -1)+
+  labs(title="Crecimiento del Poder Adquisitivo y de la Economía",
+       subtitle = "Decil 2",
+       caption = "Elaboración propia con datos de ENIGH y Banxico")
+
+
+invisible(ggsave(path="C:/Users/80251882/Documents/data_inegi/plots",
+       filename= "relationship_economy_ppa_decil2.jpg",
+       ggMarginal(g2, type = "histogram", fill="transparent"),
+       width = 10,
+       height = 6))
+
+#######################################################################
+
+
+g3 <- ggplot(tidyr::spread(df3, variable, value), 
+             aes(`Crecimiento en el PIB Real per Cápita (%)`,
+                 `Crecimiento en el Poder Adquisitivo (%)`, 
+             )) +
+  geom_count(show.legend = F)+
+  geom_smooth(method="loess", se=F)+
+  geom_text(aes(label= lubridate::year(año)), 
+            hjust = 0.5,  vjust = -1)+
+  labs(title="Crecimiento del Poder Adquisitivo y de la Economía",
+       subtitle = "Decil 3",
+       caption = "Elaboración propia con datos de ENIGH y Banxico")
+
+
+ggsave(path="C:/Users/80251882/Documents/data_inegi/plots",
+       filename= "relationship_economy_ppa_decil3.jpg",
+       ggMarginal(g3, type = "histogram", fill="transparent"),
+       width = 10,
+       height = 6)
+
+####################################################################
+
+
+g4 <- ggplot(tidyr::spread(df4, variable, value), 
+             aes(`Crecimiento en el PIB Real per Cápita (%)`,
+                 `Crecimiento en el Poder Adquisitivo (%)`, 
+             )) +
+  geom_count(show.legend = F)+
+  geom_smooth(method="loess", se=F)+
+  geom_text(aes(label= lubridate::year(año)), 
+            hjust = 0.5,  vjust = -1)+
+  labs(title="Crecimiento del Poder Adquisitivo y de la Economía",
+       subtitle = "Decil 4",
+       caption = "Elaboración propia con datos de ENIGH y Banxico")
+
+
+ggsave(path="C:/Users/80251882/Documents/data_inegi/plots",
+       filename= "relationship_economy_ppa_decil4.jpg",
+       ggMarginal(g4, type = "histogram", fill="transparent"),
+       width = 10,
+       height = 6)
+
+######################################################################
+
+g5 <- ggplot(tidyr::spread(df5, variable, value), 
+             aes(`Crecimiento en el PIB Real per Cápita (%)`,
+                 `Crecimiento en el Poder Adquisitivo (%)`, 
+             )) +
+  geom_count(show.legend = F)+
+  geom_smooth(method="loess", se=F)+
+  geom_text(aes(label= lubridate::year(año)), 
+            hjust = 0.5,  vjust = -1)+
+  labs(title="Crecimiento del Poder Adquisitivo y de la Economía",
+       subtitle = "Decil 5",
+       caption = "Elaboración propia con datos de ENIGH y Banxico")
+
+
+ggsave(path="C:/Users/80251882/Documents/data_inegi/plots",
+       filename= "relationship_economy_ppa_decil5.jpg",
+       ggMarginal(g5, type = "histogram", fill="transparent"),
+       width = 10,
+       height = 6)
+
+####################################################################
+
+g6 <- ggplot(tidyr::spread(df6, variable, value), 
+             aes(`Crecimiento en el PIB Real per Cápita (%)`,
+                 `Crecimiento en el Poder Adquisitivo (%)`, 
+             )) +
+  geom_count(show.legend = F)+
+  geom_smooth(method="loess", se=F)+
+  geom_text(aes(label= lubridate::year(año)), 
+            hjust = 0.5,  vjust = -1)+
+  labs(title="Crecimiento del Poder Adquisitivo y de la Economía",
+       subtitle = "Decil 6",
+       caption = "Elaboración propia con datos de ENIGH y Banxico")
+
+
+ggsave(path="C:/Users/80251882/Documents/data_inegi/plots",
+       filename= "relationship_economy_ppa_decil6.jpg",
+       ggMarginal(g6, type = "histogram", fill="transparent"),
+       width = 10,
+       height = 6)
+
+####################################################################
+
+g7 <- ggplot(tidyr::spread(df7, variable, value), 
+             aes(`Crecimiento en el PIB Real per Cápita (%)`,
+                 `Crecimiento en el Poder Adquisitivo (%)`, 
+             )) +
+  geom_count(show.legend = F)+
+  geom_smooth(method="loess", se=F)+
+  geom_text(aes(label= lubridate::year(año)), 
+            hjust = 0.5,  vjust = -1)+
+  labs(title="Crecimiento del Poder Adquisitivo y de la Economía",
+       subtitle = "Decil 7",
+       caption = "Elaboración propia con datos de ENIGH y Banxico")
+
+
+ggsave(path="C:/Users/80251882/Documents/data_inegi/plots",
+       filename= "relationship_economy_ppa_decil7.jpg",
+       ggMarginal(g7, type = "histogram", fill="transparent"),
+       width = 10,
+       height = 6)
+###################################################################
+
+g8 <- ggplot(tidyr::spread(df8, variable, value), 
+             aes(`Crecimiento en el PIB Real per Cápita (%)`,
+                 `Crecimiento en el Poder Adquisitivo (%)`, 
+             )) +
+  geom_count(show.legend = F)+
+  geom_smooth(method="loess", se=F)+
+  geom_text(aes(label= lubridate::year(año)), 
+            hjust = 0.5,  vjust = -1)+
+  labs(title="Crecimiento del Poder Adquisitivo y de la Economía",
+       subtitle = "Decil 8",
+       caption = "Elaboración propia con datos de ENIGH y Banxico")
+
+
+ggsave(path="C:/Users/80251882/Documents/data_inegi/plots",
+       filename= "relationship_economy_ppa_decil8.jpg",
+       ggMarginal(g8, type = "histogram", fill="transparent"),
+       width = 10,
+       height = 6)
+
+####################################################################
+g9 <- ggplot(tidyr::spread(df9, variable, value), 
+             aes(`Crecimiento en el PIB Real per Cápita (%)`,
+                 `Crecimiento en el Poder Adquisitivo (%)`, 
+             )) +
+  geom_count(show.legend = F)+
+  geom_smooth(method="loess", se=F)+
+  geom_text(aes(label= lubridate::year(año)), 
+            hjust = 0.5,  vjust = -1)+
+  labs(title="Crecimiento del Poder Adquisitivo y de la Economía",
+       subtitle = "Decil 9",
+       caption = "Elaboración propia con datos de ENIGH y Banxico")
+
+
+ggsave(path="C:/Users/80251882/Documents/data_inegi/plots",
+       filename= "relationship_economy_ppa_decil9.jpg",
+       ggMarginal(g9, type = "histogram", fill="transparent"),
+       width = 10,
+       height = 6)
+
+
+#####################################################################
+
+g10 <- ggplot(tidyr::spread(df10, variable, value), 
+             aes(`Crecimiento en el PIB Real per Cápita (%)`,
+                 `Crecimiento en el Poder Adquisitivo (%)`, 
+             )) +
+  geom_count(show.legend = F)+
+  geom_smooth(method="loess", se=F)+
+  geom_text(aes(label= lubridate::year(año)), 
+            hjust = 0.5,  vjust = -1)+
+  labs(title="Crecimiento del Poder Adquisitivo y de la Economía",
+       subtitle = "Decil 10",
+       caption = "Elaboración propia con datos de ENIGH y Banxico")
+
+
+ggsave(path="C:/Users/80251882/Documents/data_inegi/plots",
+       filename= "relationship_economy_ppa_decil10.jpg",
+       ggMarginal(g10, type = "histogram", fill="transparent"),
+       width = 10,
+       height = 6)
+
+
+
+
+# Conclusion: hay homogeneidad entre deciles
+# lo unico que cambia es la magnitud del impacto
+
+#####################################################################################
+#     Graficando el ciclo economico real vs el ciclo del poder adquisitivo          #
+#                                   por decil                                       #
+#####################################################################################
+library(dplyr)
+library(mFilter)
+library(purrr)
+
+economic_cycles_df <- tidyr::spread(growth_biseries_df, variable, value) %>%
+                      `colnames<-` (c("decil", 
+                            "año", 
+                            "Ciclo del Ingreso Real per Cápita", 
+                            "Ciclo Económico Real per Cápita")) %>%
+              dplyr::group_by(decil) %>%
+              dplyr::mutate(año = lubridate::year(año), 
+                    `Ciclo del Ingreso Real per Cápita` = fitted(loess(`Ciclo del Ingreso Real per Cápita`~ año)),
+                    `Ciclo Económico Real per Cápita` = fitted(loess(`Ciclo Económico Real per Cápita` ~ año))) %>%
+             dplyr::ungroup() %>%
+              ## preparando datos para las graficar ##
+              tidyr::gather(variable, 
+                            value, 
+                           `Ciclo del Ingreso Real per Cápita`, 
+                           `Ciclo Económico Real per Cápita`) 
+
+
+economic_cycles_df[["año"]]<- as.Date(paste("01", 
+                                        "01", 
+                                        economic_cycles_df$año,
+                                        sep="/"), 
+                                        format="%d/%m/%Y")
+
+
+
+p <- ggplot(economic_cycles_df, aes(x = año, y = value)) + 
+            geom_line(aes(color = variable), size = 1) +
+            scale_x_date(date_breaks = "2 years",date_labels = "%Y") +
+            facet_wrap_paginate(~decil, nrow = 1, ncol = 1, scales = "free") +
+            scale_color_manual(values = c("blue", "green")) +
+            theme_minimal()+
+            xlab("Año")+
+            ylab("Ciclo Real")+
+           labs(title = "Comparación de Ciclos Económicos",
+                subtitle = "Filtro Baxter-King",
+                caption = "Fuente: Elaboración propia con datos del ENIGH y Banxico")
+
+
+required_n_pages <- n_pages(p)
+
+
+for(i in 1:required_n_pages){
+  
+  
+  
+  
+  p <- ggplot(economic_cycles_df, aes(x = año, y = value)) + 
+    geom_line(aes(color = variable), size = 1) +
+    scale_x_date(date_breaks = "2 years",date_labels = "%Y") +
+    facet_wrap_paginate(~decil, nrow = 1, ncol = 1, scales = "free", page=i) +
+    scale_color_manual(values = c("blue", "green")) +
+    theme_minimal()+
+    xlab("Año")+
+    ylab("Ciclo Real")+
+    labs(title = "Comparación de Ciclos Económicos",
+         subtitle = "Filtro Baxter-King",
+         caption = "Fuente: Elaboración propia con datos del ENIGH y Banxico")
+  
+  
+  print(p)
+  ggsave(path = "C:/Users/80251882/Documents/data_inegi/plots",
+         filename = paste0("ciclos_por_decil", i,".jpg"), 
+         width = 10,
+         height = 6)
+}
+
+
+economic_cycles_series_df <- tidyr::spread(economic_cycles_df, 
+                                           variable, 
+                                           value)
+
+economic_cycles_df[["año"]] <- NULL
+
+library(plyr)
+
+corr_decil <- data.frame(ddply(economic_cycles_series_df, .(decil), 
+      summarise, 
+      "corr" = cor(`Ciclo del Ingreso Real per Cápita`, 
+                   `Ciclo Económico Real per Cápita`, 
+                   method = "pearson"))) %>%
+        mutate(corr= round(corr, 2))
+   
+ggplot(data=corr_decil, aes(x=decil, y=corr, group=1)) +
+  geom_point() +
+  geom_line() +
+  labs(x = "Decil", y = "Correlación de Pearson", 
+       title = "Grado de Sincronización por Decil")+
+  ggsave(filename= "grado_de_sincronizacion_por_decil.jpg",
+         path="C:/Users/80251882/Documents/data_inegi/plots",
+         width=10,
+         height = 6)
+
+
+##########################################################################
+#                      Forecast Regression                               #
+#                                                                        #
+##########################################################################
+
+
+######################### calculando las series ##########################
+real_gdp_time_series <- real_gdp_time_series %>%
+                       dplyr::mutate(año = as.Date(paste("01", 
+                                    "01", 
+                                    real_gdp_time_series[["año"]], sep="/"), 
+                                    format="%d/%m/%Y"))
+
+real_income_time_series <- aggregate(ln_gasto_real_per_capita ~ año, 
+                             global_dataset, 
+                             FUN = mean) %>%
+  dplyr::mutate(año = as.Date(paste("01", 
+                                    "01", 
+                                    real_income_time_series[["año"]], sep="/"), 
+                              format="%d/%m/%Y"))
+
+
+forecast_input <- cbind(real_gdp_time_series, 
+                        ln_gasto_real_per_capita = 
+                        real_income_time_series[['ln_gasto_real_per_capita']])
+
+############################### pipeline ################################
+
+forecast_input <- forecast_input %>%
+                  # obteniendo las tasas de crecimiento #
+                     
+                  dplyr::mutate(growth_gasto_real_per_capita = 
+                        ((ln_gasto_real_per_capita - lag(ln_gasto_real_per_capita))/
+                                  lag(ln_gasto_real_per_capita))) %>%
+                  dplyr::mutate(growth_pib_real_per_capita = 
+                              ((ln_pib_real_per_capita - lag(ln_pib_real_per_capita))/
+                               lag(ln_pib_real_per_capita))) %>%
+                  tidyr::drop_na() %>%
+                  dplyr::select(-c(ln_gasto_real_per_capita, ln_pib_real_per_capita)) %>%
+                  
+                  # convirtiendo a ciclos y formateando el año #
+                  dplyr::mutate(año = lubridate::year(año), 
+                  ciclo_ingreso_real = fitted(loess(growth_gasto_real_per_capita~ año)),
+                  ciclo_economico_real = fitted(loess(growth_pib_real_per_capita ~ año))) %>%
+                  dplyr::mutate(año = as.Date(paste("01", 
+                                                    "01", 
+                                                   año, 
+                                                   sep="/"), 
+                                                   format="%d/%m/%Y")) %>%
+                  dplyr::select(-c(growth_gasto_real_per_capita,
+                                    growth_pib_real_per_capita))
+                  
+###############################################################################
+
+
+requiredpackages <- c('readxl', 'openxlsx', 'foreign', 'dplyr',  
+                      'stringr', 'janitor', 'tibble', 'lubridate', 
+                      'zoo', 'data.table', 'forecast', 'svMisc', 'tau',
+                      'bitops', 'RCurl', 'stringr', 'XML', 'urca', 'fpp',
+                      'ggplot2', 'ggfortify', 'TSA', 'stringi')
+
+install_load <- function(packages){
+  for (p in packages) {
+    if (p %in% rownames(installed.packages())) {
+      library(p, character.only=TRUE)
+    } else {
+      install.packages(p)
+      library(p,character.only = TRUE)
+    }
+  }
+}
+
+install_load(requiredpackages)
+
+############ realizando el pronostico para el ciclo del ingreso real ############
+
+#################################################################################
+# Descripcion: se procede a obtener un pronostico para el año                   #
+#              2020 para el ciclo del ingreso real, de esta forma               #
+#              lo podremos comparar con el ciclo economico real                 # 
+#              del año 2020, y asi poder llegar a tener una nocion              #
+#              de cual es el la relacion entre ambos en el año 2020             #
+#################################################################################
+
+library(xts)
+
+cir_ts <- xts(forecast_input[['ciclo_ingreso_real']], order.by=forecast_input[,1])
+
+
+######################## seleccionando el arima optimo #########################
+
+#Criterio BIC
+
+a<-armasubsets(y=cir_ts, nar=2, nma=2, ar.method = 'ols')
+
+par(mfrow=c(1,1))
+plot(a)
+
+
+################################## arima(2,0,1) ################################
+
+#model<-auto.arima(cir_ts, max.d=2, max.q = 1)
+
+model <- Arima(cir_ts, order=c(2,0,1))
+
+Box.test(residuals(model), lag=1, fitdf=1, type="Box-Pierce")
+
+acf(residuals(model),
+    main = "Modelo ARIMA(2,0,1) Autocorrelograma")
+acf(residuals(model), 
+    type="partial",
+    main = "Modelo ARIMA(2,0,1) Autocorrelograma Parcial")
+
+############################ pronostico del modelo ############################
+
+forecast(model,h=4)
+
+plot(forecast(model,h=4), 
+     main= 'Pronostico ARIMA(2,0,1) con media cero',
+     ylab="Ciclo del Ingreso Real",
+     xlab="Fecha", 
+     col="orange")
+
+
+
+### construyendo nuevas series con pronostico y datoS actualizados del Inegi ##
+
+real_gdp_time_series <- real_gdp_time_series %>%
+                        ## getting gdp growth ##
+  
+                       dplyr::mutate(growth_pib_real_per_capita = 
+                                    ((ln_pib_real_per_capita - lag(ln_pib_real_per_capita))/
+                                     lag(ln_pib_real_per_capita))) %>%
+                       dplyr::select(-c(ln_pib_real_per_capita)) %>%
+                       tidyr::drop_na() %>%
+  
+                        ## adding new obs ##
+  
+                            rbind(list(año = c('2019-01-01', '2020-01-01'), 
+                            growth_pib_real_per_capita = c(-0.006, -0.086))) %>%
+                        
+                        ## obteniendo ciclo ##
+                       dplyr::mutate(año = lubridate::year(año), 
+                                     ciclo_economico_real = fitted(loess(growth_pib_real_per_capita~ año))) %>%
+                       dplyr::mutate(año = as.Date(paste("01", 
+                                    "01", 
+                                    año, 
+                                    sep="/"), 
+                              format="%d/%m/%Y")) %>%
+                      dplyr::select(-c(growth_pib_real_per_capita))
+                         
+
+
+real_income_time_series <- real_income_time_series %>%
+  
+                           ## getting income growth ##
+  
+                          dplyr::mutate(growth_gasto_real_per_capita = 
+                                      ((ln_gasto_real_per_capita - lag(ln_gasto_real_per_capita))/
+                                        lag(ln_gasto_real_per_capita))) %>%
+                         dplyr::select(-c(ln_gasto_real_per_capita)) %>%
+                         tidyr::drop_na() %>%
+  
+                           ## obteniendo ciclo ##
+                         dplyr::mutate(año = lubridate::year(año), 
+                                       ciclo_ingreso_real = fitted(loess(growth_gasto_real_per_capita~ año))) %>%
+                         dplyr::mutate(año = as.Date(paste("01", 
+                                                           "01", 
+                                                            año, 
+                                                            sep="/"), 
+                                                            format="%d/%m/%Y")) %>%
+                         dplyr::select(-c(growth_gasto_real_per_capita)) %>%
+  
+                       ## adding new obs ##
+  
+                         rbind(list(año = c('2019-01-01', '2020-01-01'), 
+                                    ciclo_ingreso_real = c(0.006619960, -0.001171934)))
+
+
+newest_df <- cbind(real_gdp_time_series, ciclo_ingreso_real=
+                                         real_income_time_series[['ciclo_ingreso_real']]) %>%
+             tidyr::gather(variable, 
+                           value, 
+                           ciclo_economico_real, 
+                           ciclo_ingreso_real) 
+
+newest_df$variable <- factor(newest_df$variable, 
+                             levels=c('ciclo_economico_real', 'ciclo_ingreso_real'), 
+                             labels=c('Ciclo Económico Real', 'Ciclo de Ingreso Real'))
+
+
+
+ 
+ggplot(newest_df, aes(x=año)) + 
+  geom_line(aes(y=value, col=variable), size=2) + 
+  labs(title="Ciclo Economico y de Ingreso Real", 
+       subtitle="De 1989 a 2020", 
+       caption="Elaboración Propia con Datos de la ENIGH y Banxico", 
+       y="Ciclo",
+       x='Año',
+       color=NULL) +  # title and caption
+  scale_x_date(date_breaks = "1 year",date_labels = "%Y") +  # change to monthly ticks and labels
+  theme(axis.text.x = element_text(angle = 90, vjust=0.5, size = 8),  # rotate x axis text
+        panel.grid.minor = element_blank())  # turn off minor grid 
+
+
+
 
