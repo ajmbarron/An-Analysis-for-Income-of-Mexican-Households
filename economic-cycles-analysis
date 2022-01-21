@@ -54,7 +54,7 @@ install.packages("DescTools")
 
 
 #Obtener factor expansion para cada ENIGH y multiplicarla por el
-#tama駉 del hogar para luego obtener PIB Real per c醦ita
+#tama帽o del hogar para luego obtener PIB Real per c谩pita
 #Obteniendo poblacion total
 
 #1984
@@ -199,9 +199,9 @@ write.csv(trends,"tendencias_metodologias.csv")
 
 par(mfrow=c(1,2))
 axis(1, seq(-1,1))
-hist(ciclo, xlab= "Ciclo Econ髆ico Mexicano", ylab= "Frecuencia",
+hist(ciclo, xlab= "Ciclo Econ贸mico Mexicano", ylab= "Frecuencia",
      main= "Histograma de Frecuencias Absolutas" )
-plot(density(ciclo), main="Funci髇 de Densidad Estimada")
+plot(density(ciclo), main="Funci贸n de Densidad Estimada")
 
 #Analisis de frecuencia
 freq<-read.csv("frecuencias.csv")
@@ -285,7 +285,7 @@ selection.lag(bk$BK, x= NULL, 10)
 hqc<-ur.df(bk$BK,type="none",lags=10,selectlags = "Fixed")
 summary(hqc)
 
-hist(bk$BK, xlab="Ciclo Econ髆ico Real",ylab="Frecuencia Absoluta",
+hist(bk$BK, xlab="Ciclo Econ贸mico Real",ylab="Frecuencia Absoluta",
      main="Histograma de Frecuencias")
 
 
@@ -304,13 +304,13 @@ par(mar=c(0.5,0.5,0.5,0.5))
 par(mfrow=c(2,2))
 plot.legend <- c("Cauchy", "Normal")
 denscomp(list(fit_c, fit_d), legendtext = plot.legend,ylab="Densidad",
-         xlab="Ciclo Econ髆ico Real",main = "Histograma y Densidades Te髍icas")
+         xlab="Ciclo Econ贸mico Real",main = "Histograma y Densidades Te贸ricas")
 cdfcomp (list(fit_c,  fit_d), legendtext = plot.legend, ylab="Densidad Acumulada",
-         xlab="Ciclo Econ髆ico Real", main="Densidad Acumulada Empirica y Te髍ica")
-qqcomp  (list(fit_c,  fit_d), legendtext = plot.legend, xlab="Cuantiles Te髍icos",
-         ylab="Cuantiles Empir韈os", main="Gr醘ico de Cuantiles")
-ppcomp  (list(fit_c,  fit_d), legendtext = plot.legend,xlab="Probabilidades Te髍icas",
-         ylab="Probabilidades Empir韈as", main="Gr醘ico de Probabilidades")
+         xlab="Ciclo Econ贸mico Real", main="Densidad Acumulada Empirica y Te贸rica")
+qqcomp  (list(fit_c,  fit_d), legendtext = plot.legend, xlab="Cuantiles Te贸ricos",
+         ylab="Cuantiles Empir铆cos", main="Gr谩fico de Cuantiles")
+ppcomp  (list(fit_c,  fit_d), legendtext = plot.legend,xlab="Probabilidades Te贸ricas",
+         ylab="Probabilidades Empir铆cas", main="Gr谩fico de Probabilidades")
 
 
 location<-0.001075558
@@ -363,7 +363,7 @@ library(tidyr)
 #Se procede a tomar como variable proxy del ingreso la suma del 
 #gasto monetario mas el gasto no monetario que estan registrados
 #de forma trimestral en las encuestas del ENIGH. Por lo tanto
-#de aqui en adelante se tomara como definici髇 de la variable ingreso
+#de aqui en adelante se tomara como definici贸n de la variable ingreso
 #la suma de los componentes mencionados anteriormente.
 
 
@@ -374,7 +374,7 @@ library(foreign)
 #Subiendo INPC comparable
 inpc<-read.csv("INPC_ENIGH.csv")
 
-#Definiendo INPC por a駉
+#Definiendo INPC por a帽o
 inpc<-inpc$INPC.Indice.junio.2013.1.
 
 inpc_1984<-inpc[1]
@@ -396,7 +396,7 @@ inpc_2016<-inpc[16]
 inpc_2018<-inpc[17]
 
 #Obtendremos el ingreso real per capita dividiendo el ingreso real entre
-#el n鷐ero de integrantes del hogar. 
+#el n煤mero de integrantes del hogar. 
 
 #Enigh 84
 enigh_84<-read.dbf("CONCE84.dbf")
@@ -1306,14 +1306,14 @@ write.csv(panel,"panel.csv")
 #Ciclos para el total per capita
 
 datos<-read.csv("ciclo_desigualdad.csv")[-1]
-a駉s<-c("1984","1989","1992","1994","1996","1998","2000","2002",
+a帽os<-c("1984","1989","1992","1994","1996","1998","2000","2002",
         "2004","2005","2006","2008","2010","2012","2014","2016","2018")
 ciclo<-datos$CER
 atkinson_1<-datos$Atkinson.0.05.
 atkinson_2<-datos$Atkinson.0.5.
 atkinson_3<-datos$Atkinson.0.8.
 gini<-datos$Gini
-fecha<-as.Date(a駉s,format=c("%Y"))
+fecha<-as.Date(a帽os,format=c("%Y"))
 class(fecha)
 
 indices<-data.frame(fecha,atkinson_1,atkinson_2,atkinson_3,gini)
