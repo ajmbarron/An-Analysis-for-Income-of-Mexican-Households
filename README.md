@@ -20,8 +20,10 @@ This repository has two modules whose aim are:
 
 ●Atkinson A. (1970). On the Measurement of Inequality. Journal of Economic
 Theory 2.pp. 244-263.
+
 ● Auclert A. y Rognlie M. (2018). Inequality and Aggregate Demand. NBER
 Working Paper (No. 24280).
+
 ● Bahadur R. (1967). An optimal property of the likelihood ratio statistic. Berkeley
 Symposium on Mathematical Statistics and Probability, University of California
 Press. Vol. 1. pp. 13-26.
