@@ -1,6 +1,8 @@
 # B.A. Economics Thesis: The Economic Cycle and Inequality - An Empirical Study for Mexican Households
 
-This repository has two modules whose aim are:
+<Context>: A repository to extract, transform and load data from external sources with the aim to answer the hyphotesis, does there exist an homogenous procyclic relationship impact between income and inequality for all Mexican households? 
+
+This repository has two modules:
 
 * `time-series-preprocessing.R`: 
 
