@@ -17,6 +17,9 @@ This repository has two modules:
      
 * `economic-cycles-analysis.R`:
 
+To measure household income, per-capita income was used; whilst to measure inequality Atkinson Index was developed. 
+A cross-sectional panel database, where `t=1984,...,2020` and `i=I,II,...X` where `i` was formulated as population deciles. 
+was developed in order to calculate the cycle given distinct perspectives, f
 
 
 
