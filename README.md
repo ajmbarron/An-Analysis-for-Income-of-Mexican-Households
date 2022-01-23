@@ -20,7 +20,15 @@ This repository has two modules:
 To measure household income, per-capita income was used; whilst to measure inequality Atkinson Index was developed. 
 A cross-sectional panel database, where `t=1984,...,2020` and `i=I,II,...X` where `i` was formulated as population deciles. 
 
-By using Kolmogorv-Smirnov Test it was found that the income-cycle followed a Cauchy distribution, as there wasn't evidence to reject the null hypthosis, were both samples came from same distribution. In order to fit Cauchy parameters the next methodologies were tried:
+By using Kolmogorv-Smirnov Test it was found that the income-cycle followed a Cauchy distribution, as there wasn't evidence to reject the null hypthosis, were both samples came from same distribution. 
+
+![thesis_cauchy](https://user-images.githubusercontent.com/46272782/150695216-4052ed24-627c-4327-aede-9ac2be27ff72.PNG)
+
+
+
+
+
+In order to fit Cauchy parameters the next methodologies were tried:
 
 * Maximum Likelihood
 * Nelder-Meade Algoritm
