@@ -20,12 +20,24 @@ This repository has two modules:
 To measure household income, per-capita income was used; whilst to measure inequality Atkinson Index was developed. 
 A cross-sectional panel database, where `t=1984,...,2020` and `i=I,II,...X` where `i` was formulated as population deciles. 
 
-By using Kolmogorv-Smirnov test it was found that the income-cycle followed a Cauchy distribution, bootstrapped samples were used  in order to calibrate robustness for Kolmogorv-Smirnov statistic, after all the statistic was found robust, as there wasn't evidence to reject the null hypthosis (both samples come from same distribution). 
+By using Kolmogorv-Smirnov Test it was found that the income-cycle followed a Cauchy distribution, as there wasn't evidence to reject the null hypthosis, were both samples came from same distribution. In order to fit Cauchy parameters the next methodologies were tried:
+
+* Maximum Likelihood
+* Nelder-Meade Algoritm
+* Newton-Raphson Algorithm
+
+As Nelder-Meade and Newton-Raphson algorithms never converged, maximum-likelihood method was preferred.
 
 As series had a non-normal behavior it was necessary to extract the time-series noise, he cycle was developed for both indicatores following the next methodologies:
+
 * Hodrick-Prescott
 * Trigonometric Regression
 * Baxter-King
+* Differences
+* Christiano-Fitzgerald
+
+It was found that the cycle with least oscillations per time-period was the one that followed a Baxter-King methodology, therefore, by following this methodology pearson correlation coefficients were computed in order to know the intrinsec linear relationship between inequality and income across time for mexican-households, as both series had a non-normal behavior and following central limit theorem, bootstrapped samples were used  in order to calibrate robustness for Kolmogorv-Smirnov statistic, after this the statistic was found robust. 
+
 
 
 
