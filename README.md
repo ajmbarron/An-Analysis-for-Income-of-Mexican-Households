@@ -28,6 +28,10 @@ This repository has two modules whose aim are:
 
 
 
+
+
+
+
 Bibliography used for this work:
 
    - Atkinson A. (1970). On the Measurement of Inequality. Journal of Economic
