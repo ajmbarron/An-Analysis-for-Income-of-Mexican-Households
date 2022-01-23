@@ -26,7 +26,7 @@ By using Kolmogorv-Smirnov Test it was found that the income-cycle followed a Ca
 * Nelder-Meade Algoritm
 * Newton-Raphson Algorithm
 
-As Nelder-Meade and Newton-Raphson algorithms never converged, maximum-likelihood method was preferred.
+As Nelder-Meade and Newton-Raphson algorithms never converged, and given 4GB of ram power, maximum-likelihood method was preferred.
 
 As series had a non-normal behavior it was necessary to extract the time-series noise, he cycle was developed for both indicatores following the next methodologies:
 
