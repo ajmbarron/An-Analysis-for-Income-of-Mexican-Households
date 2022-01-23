@@ -12,14 +12,20 @@ This repository has two modules:
      - National Economic Datawarehouse: https://www.inegi.org.mx/sistemas/bie/
    
    After extracting the data via API, the data is concatenated for all available years for mexican households in order to transform raw-data to equal format time-series
-   for every data source in order to get a final dataset where it would be possible to follow mexican household features for each mexican household across time, in a period that    goes from 1984 to 2020.  
+   for every data source in order to get a final dataset where it would be possible to follow mexican household features for each mexican household across time, in a period that goes from 1984 to 2020.  
    
      
 * `economic-cycles-analysis.R`:
 
 To measure household income, per-capita income was used; whilst to measure inequality Atkinson Index was developed. 
 A cross-sectional panel database, where `t=1984,...,2020` and `i=I,II,...X` where `i` was formulated as population deciles. 
-was developed in order to calculate the cycle given distinct perspectives, f
+
+By using Kolmogorv-Smirnov test it was found that the income-cycle followed a Cauchy distribution, bootstrapped samples were used  in order to calibrate robustness for Kolmogorv-Smirnov statistic, after all the statistic was found robust, as there wasn't evidence to reject the null hypthosis (both samples come from same distribution). 
+
+As series had a non-normal behavior it was necessary to extract the time-series noise, he cycle was developed for both indicatores following the next methodologies:
+* Hodrick-Prescott
+* Trigonometric Regression
+* Baxter-King
 
 
 
