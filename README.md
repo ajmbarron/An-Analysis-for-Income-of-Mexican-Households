@@ -38,9 +38,7 @@ As series had a non-normal behavior it was necessary to extract the time-series 
 
 It was found that the cycle with least oscillations per time-period was the one that followed a Baxter-King methodology, therefore, by following this methodology pearson correlation coefficients were computed in order to know the intrinsec linear relationship between inequality and income across time for mexican-households, as both series had a non-normal behavior and following central limit theorem, bootstrapped samples were used  in order to calibrate robustness for Kolmogorv-Smirnov statistic, after this the statistic was found robust. 
 
-
-
-
+It was found that the income and inequality cycles have a procyclic relationship, meaning that when household income increases the country inequality increases. 
 
 
 
